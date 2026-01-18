@@ -1,0 +1,39 @@
+{
+  "EntityFieldTypes": [
+    {
+      "type": "smallint",
+      "description": "Signed two-byte integer used for low-range whole numbers.",
+      "examples": "-32768, 0, 32767"
+    },
+    {
+      "type": "integer",
+      "description": "Standard four-byte signed integer; the default choice for most numeric data.",
+      "examples": "-2147483648, 42, 2147483647"
+    },
+    {
+      "type": "bigint",
+      "description": "Signed eight-byte integer for large-scale IDs or global counts.",
+      "examples": "9223372036854775807, 100000000000"
+    },
+    {
+      "type": "decimal",
+      "description": "Exact numeric type with user-defined precision; perfect for financial calculations.",
+      "examples": "19.99, 100.00, -0.005"
+    },
+    {
+      "type": "varchar(n)",
+      "description": "Variable-length character string with an optional limit (n).",
+      "examples": "'John Doe', 'email@example.com', 'PostgreSQL'"
+    },
+    {
+      "type": "timestamptz",
+      "description": "Date and time including time zone offset; stored in UTC.",
+      "examples": "'2024-03-15 14:30:00+00', '2023-12-31 23:59:59-05'"
+    },
+    {
+      "type": "boolean",
+      "description": "Logical state container representing truth or falsehood.",
+      "examples": "TRUE, FALSE, 'yes', 'no', '1', '0'"
+    }
+  ]
+}

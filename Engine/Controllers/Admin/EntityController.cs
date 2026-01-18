@@ -1,10 +1,8 @@
-﻿using Engine.Models;
-using MetaParsers.EntityParser;
+﻿using Engine.EntityService;
+using Engine.Models;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entity;
 using System.Net;
-using System.Net.Http;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Engine.Controllers.Admin
 {
@@ -12,12 +10,12 @@ namespace Engine.Controllers.Admin
     [Route("admin/api/{app}/entity")]
     public class EntityController : Controller
     {
-        private readonly IEntityParser<string> parser;
+        private readonly IEntityService entityService;
         private readonly ILogger<EntityController> logger;
 
-        public EntityController(IEntityParser<string> parser, ILogger<EntityController> logger)
+        public EntityController(IEntityService entityService, ILogger<EntityController> logger)
         {
-            this.parser = parser;
+            this.entityService = entityService;
             this.logger = logger;
         }
 
@@ -35,11 +33,7 @@ namespace Engine.Controllers.Admin
             try
             {
                 using var stream = file.OpenReadStream();
-                using var reader = new StreamReader(stream);
-                string content = await reader.ReadToEndAsync();
-                entity = parser.Parse(content);
-
-                logger.LogInformation($"Parsing completed for entity {entity.Name}, App - {app}");
+                entity = await entityService.ParseAndValidateAsync(app, stream);
             }
             catch (Exception ex)
             {
@@ -50,7 +44,8 @@ namespace Engine.Controllers.Admin
 
             return Created(string.Empty, new SucessResponse<object>() { 
                 Success = true, 
-                Message = $"Entity {entity.Name} created sucessfully." });
+                Message = $"Entity {entity.Name} created sucessfully." 
+            });
         }
 
         [HttpGet]

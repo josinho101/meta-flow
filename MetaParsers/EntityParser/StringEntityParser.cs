@@ -5,18 +5,17 @@ namespace MetaParsers.EntityParser
 {
     public class StringEntityParser : IEntityParser<string>
     {
+        JsonSerializerOptions options = new JsonSerializerOptions{ 
+            PropertyNameCaseInsensitive = true, 
+            AllowTrailingCommas = true 
+        };
+
         public Entity Parse(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                throw new ArgumentException("Input JSON is null or empty.", nameof(input));
+                throw new ArgumentException("Input is null or empty.", nameof(input));
             }
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                AllowTrailingCommas = true
-            };
 
             Entity entity;
             try

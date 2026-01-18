@@ -9,12 +9,14 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddApplicationServices();
+    builder.Services.Add();
 
     builder.Host.UseSerilog((ctx, services, lc) =>
         lc.ReadFrom.Configuration(ctx.Configuration)
           .Enrich.FromLogContext()
     );
+
+    builder.Configuration.AddJsonFile("entityfieldtypes.json", optional: false, reloadOnChange: true);
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
