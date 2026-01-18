@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace MetaParsers.EntityParser
 {
-    public class JsonEntityParser : IEntityParser<string>
+    public class StringEntityParser : IEntityParser<string>
     {
         public Entity Parse(string input)
         {

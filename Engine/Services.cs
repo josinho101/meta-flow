@@ -6,7 +6,7 @@ namespace Engine
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddSingleton<IEntityParser<string>, JsonEntityParser>();
+            services.AddSingleton<IEntityParser<string>, StringEntityParser>();
 
             return services;
         }
