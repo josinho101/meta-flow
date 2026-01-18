@@ -4,13 +4,13 @@ namespace Engine.Controllers
 {
     [ApiController]
     [Route("{app}/api/{version}")]
-    public class MetaFlowEngineController : Controller
+    public class EngineController : Controller
     {
-        private readonly ILogger<MetaFlowEngineController> _logger;
+        private readonly ILogger<EngineController> logger;
 
-        public MetaFlowEngineController(ILogger<MetaFlowEngineController> logger)
+        public EngineController(ILogger<EngineController> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         [HttpGet("{**dynamicRoutes}")]
@@ -18,7 +18,7 @@ namespace Engine.Controllers
         {
             var route = System.Net.WebUtility.UrlDecode(dynamicRoute);
 
-            this._logger.LogInformation("Received request for App: {app}, Version: {version}, Route: {route}", app, version, route);
+            this.logger.LogInformation("Received request for App: {app}, Version: {version}, Route: {route}", app, version, route);
 
             return Ok(new
             {

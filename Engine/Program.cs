@@ -1,3 +1,4 @@
+using Engine;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -8,13 +9,13 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Read Serilog settings (minimum levels, overrides, sinks) from appsettings.json
+    builder.Services.AddApplicationServices();
+
     builder.Host.UseSerilog((ctx, services, lc) =>
         lc.ReadFrom.Configuration(ctx.Configuration)
           .Enrich.FromLogContext()
     );
 
-    // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
