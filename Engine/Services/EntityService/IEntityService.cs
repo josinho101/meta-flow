@@ -4,6 +4,6 @@ namespace Engine.EntityService
 {
     public interface IEntityService
     {
-        public Task<Entity> ParseAndValidateAsync(string app, Stream stream);
+        public Task<(Entity? entity, List<string>? errors)> ParseAndValidateAsync(string app, Stream stream);
     }
 }

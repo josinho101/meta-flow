@@ -1,4 +1,6 @@
-﻿using MetaParsers.EntityParser;
+﻿using Engine.EntityService;
+using Engine.Services.EntityService;
+using MetaParsers.EntityParser;
 using Validators.EntityValidator;
 
 namespace Engine
@@ -9,6 +11,7 @@ namespace Engine
         {
             services.AddSingleton<IEntityParser<string>, StringEntityParser>();
             services.AddSingleton<IEntityValidator, EntityValidator>();
+            services.AddSingleton<IEntityService, Engine.Services.EntityService.EntityService>();
 
             return services;
         }

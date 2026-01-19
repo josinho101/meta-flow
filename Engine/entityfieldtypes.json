@@ -21,8 +21,8 @@
       "examples": "19.99, 100.00, -0.005"
     },
     {
-      "type": "varchar(n)",
-      "description": "Variable-length character string with an optional limit (n).",
+      "type": "varchar",
+      "description": "Variable-length character string.",
       "examples": "'John Doe', 'email@example.com', 'PostgreSQL'"
     },
     {

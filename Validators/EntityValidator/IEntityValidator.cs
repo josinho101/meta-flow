@@ -4,6 +4,6 @@ namespace Validators.EntityValidator
 {
     public interface IEntityValidator
     {
-        public bool Validate(Entity entity);
+        public List<string> Validate(Entity entity);
     }
 }

@@ -15,8 +15,8 @@ namespace Engine.Controllers.Admin
 
         public EntityController(IEntityService entityService, ILogger<EntityController> logger)
         {
-            this.entityService = entityService;
             this.logger = logger;
+            this.entityService = entityService;
         }
 
         [HttpPost]
@@ -29,11 +29,22 @@ namespace Engine.Controllers.Admin
                 return BadRequest(new ErrorResponse("No entity file found. Use field name 'file' to upload entity"));
             }
 
-            Entity entity;
             try
             {
                 using var stream = file.OpenReadStream();
-                entity = await entityService.ParseAndValidateAsync(app, stream);
+                var (entity, errors) = await entityService.ParseAndValidateAsync(app, stream);
+
+                if (errors != null && errors.Any())
+                {
+                    var errorSummary = string.Join(", ", errors);
+                    return BadRequest(new ErrorResponse($"Entity validation for {app} failed with following errors. {errorSummary}"));
+                }
+
+                return Created(string.Empty, new SucessResponse<object>()
+                {
+                    Success = true,
+                    Message = $"Entity {entity?.Name} created sucessfully."
+                });
             }
             catch (Exception ex)
             {
@@ -41,11 +52,6 @@ namespace Engine.Controllers.Admin
                 return StatusCode((int)HttpStatusCode.InternalServerError,
                     new ErrorResponse("Error while parsing file - {file?.FileName}"));
             }
-
-            return Created(string.Empty, new SucessResponse<object>() { 
-                Success = true, 
-                Message = $"Entity {entity.Name} created sucessfully." 
-            });
         }
 
         [HttpGet]

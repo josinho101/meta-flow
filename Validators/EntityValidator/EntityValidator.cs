@@ -1,54 +1,78 @@
-﻿using Models.Entity;
+﻿using Microsoft.Extensions.Configuration;
+using Models.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Validators.EntityValidator
 {
     public class EntityValidator : IEntityValidator
     {
-        public bool Validate(Entity entity)
+        private readonly HashSet<string> allowedTypes;
+
+        public EntityValidator(IConfiguration configuration)
         {
-            if (entity is null)
-            {
-                return false;
-            }
+            var types = configuration.GetSection("EntityFieldTypes").Get<List<FieldTypeInfo>>();
+            allowedTypes = new HashSet<string>(
+                types
+                    .Where(t => !string.IsNullOrWhiteSpace(t.Type))
+                    .Select(t => t.Type.Trim()),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        public List<string> Validate(Entity entity)
+        {
+            var errors = new List<string>();
 
             if (string.IsNullOrWhiteSpace(entity.Name))
             {
-                return false;
+                errors.Add("Entity name is required.");
             }
 
             if (entity.Fields is null || !entity.Fields.Any())
             {
-                return false;
+                errors.Add("Entity must contain at least one field.");
             }
-
-            foreach (var field in entity.Fields)
+            else
             {
-                if (field is null)
+                for (int i = 0; i < entity.Fields.Count; i++)
                 {
-                    return false;
-                }
+                    var field = entity.Fields[i];
+                    var fieldId = field?.Field ?? $"index {i}";
 
-                if (string.IsNullOrWhiteSpace(field.Field))
-                {
-                    return false;
-                }
-
-                if (string.IsNullOrWhiteSpace(field.Type))
-                {
-                    return false;
-                }
-
-                var fk = field.ForeignKey;
-                if (fk is not null)
-                {
-                    if (string.IsNullOrWhiteSpace(fk.ReferenceTable) || string.IsNullOrWhiteSpace(fk.ReferenceField))
+                    if (string.IsNullOrWhiteSpace(field.Field))
                     {
-                        return false;
+                        errors.Add($"Field name is required for field at index {i}");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(field.Type))
+                    {
+                        errors.Add($"Type is required for field '{fieldId}'");
+                    }
+                    else
+                    {
+                        var fieldType = field.Type.Trim();
+                        if (!allowedTypes.Contains(fieldType))
+                        {
+                            errors.Add($"Field '{fieldId}' has unsupported type '{fieldType}'");
+                        }
+                    }
+
+                    var fk = field.ForeignKey;
+                    if (fk is not null)
+                    {
+                        if (string.IsNullOrWhiteSpace(fk.ReferenceTable))
+                        {
+                            errors.Add($"ForeignKey on field '{fieldId}' is missing ReferenceTable");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(fk.ReferenceField))
+                        {
+                            errors.Add($"ForeignKey on field '{fieldId}' is missing ReferenceField");
+                        }
                     }
                 }
             }
 
-            return true;
+            return errors;
         }
     }
 }
