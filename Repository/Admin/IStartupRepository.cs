@@ -1,6 +1,6 @@
 ﻿namespace Repository.Admin
 {
-    public interface IMetaFlowRepository
+    public interface IStartupRepository
     {
         Task<bool> GenarateAppTable();
         Task<bool> GenarateEntityTable();

@@ -1,0 +1,126 @@
+﻿using Microsoft.Extensions.Logging;
+using Models.Apps;
+using Models.Enums;
+using Repository.Base;
+using System.Data;
+
+namespace Repository.Admin
+{
+    public class AppRepository : IAppRepository
+    {
+        private readonly IDatabaseDialect database;
+
+        private readonly ILogger<AppRepository> logger;
+
+        public AppRepository(IDatabaseDialect database, ILogger<AppRepository> logger)
+        {
+            this.database = database;
+            this.logger = logger;
+        }
+
+        public async Task<App> Create(App app)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            DateTime date = DateTime.UtcNow;
+            var parameters = new Dictionary<string, object>
+            {
+                { "name", app.Name },
+                { "description", app.Description },
+                { "status", (int)Status.Active },
+                { "createdDate", date },
+                { "updatedDate", date }
+            };
+            string sql = @"INSERT INTO Apps (Name, Description, Status, CreatedDate, UpdatedDate) 
+                                        VALUES (@name, @description, @status, @createdDate, @updatedDate)";
+            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+            app.Id = result;
+            app.CreatedDate = date;
+            app.UpdatedDate = date;
+
+            return app;
+        }
+
+        public async Task<bool> Delete(int id)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "id", id },
+                { "status", (int)Status.Deleted },
+                { "updatedDate", DateTime.UtcNow }
+            };
+            string sql = @"UPDATE Apps SET Status=@status, UpdatedDate=@updatedDate WHERE Id=@id";
+            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+
+            return result > 0;
+        }
+
+        public async Task<App> Get(int id)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "id", id },
+                { "status", (int)Status.Active }
+            };
+            string sql = @"SELECT Id, Name, Description, CreatedDate FROM Apps WHERE Status=@status AND Id=@id";
+            using var reader = await database.ExecuteReaderAsync(connection, sql, parameters);
+            while (reader.Read())
+            {
+                var app = new App
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate"))
+                };
+                return app;
+            }
+
+            return null;
+        }
+
+        public async Task<List<App>> GetAll()
+        {
+            List<App> apps = new List<App>();
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "status", (int)Status.Active }
+            };
+            string sql = @"SELECT Id, Name, Description, CreatedDate, UpdatedDate FROM Apps WHERE Status=@status";
+            using var reader = await database.ExecuteReaderAsync(connection, sql, parameters);
+            while (reader.Read())
+            {
+                var app = new App
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                    UpdatedDate = reader.GetDateTime(reader.GetOrdinal("UpdatedDate"))
+                };
+                apps.Add(app);
+            }
+
+            return apps;
+        }
+
+        public async Task<bool> Update(int id, App app)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "id", id },
+                { "name", app.Name },
+                { "description", app.Description },
+                { "status", (int)Status.Active },
+                { "updatedDate", DateTime.UtcNow }
+            };
+            string sql = @"UPDATE Apps SET Name=@name, Description=@description, UpdatedDate=@updatedDate WHERE Id=@id AND Status=@status";
+            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+
+            return result > 0;
+        }
+    }
+}

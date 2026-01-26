@@ -1,4 +1,5 @@
 ﻿using Engine.EntityService;
+using Engine.Services.AppsService;
 using Engine.Services.StartupService;
 using MetaParsers.EntityParser;
 using Repository.Admin;
@@ -14,9 +15,14 @@ namespace Engine
             services.AddSingleton<IEntityParser<string>, StringEntityParser>();
             services.AddSingleton<IEntityValidator, EntityValidator>();
             services.AddSingleton<IEntityService, Services.EntityService.EntityService>();
+
             services.AddSingleton<IDatabaseDialect, PostgresDialect>();
-            services.AddSingleton<IMetaFlowRepository, MetaFlowRepository>();
+
             services.AddSingleton<IStartupService, StartupService>();
+            services.AddSingleton<IStartupRepository, StartupRepository>();
+
+            services.AddSingleton<IAppService, AppService>();
+            services.AddSingleton<IAppRepository, AppRepository>();
 
             return services;
         }

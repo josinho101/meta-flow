@@ -4,13 +4,13 @@ using System.Data;
 
 namespace Repository.Admin
 {
-    public class MetaFlowRepository : IMetaFlowRepository
+    public class StartupRepository : IStartupRepository
     {
         private readonly IDatabaseDialect databaseDialect;
 
-        private readonly ILogger<MetaFlowRepository> logger;
+        private readonly ILogger<StartupRepository> logger;
 
-        public MetaFlowRepository(IDatabaseDialect databaseDialect, ILogger<MetaFlowRepository> logger)
+        public StartupRepository(IDatabaseDialect databaseDialect, ILogger<StartupRepository> logger)
         {
             this.databaseDialect = databaseDialect;
             this.logger = logger;
@@ -20,11 +20,11 @@ namespace Repository.Admin
         {
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS Apps (
-                    id SERIAL PRIMARY KEY,
+                    id SMALLSERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     description VARCHAR(500),
-                    createdDate TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-                    modifiedDate TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+                    createdDate TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                    updatedDate TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                     status SMALLINT
                 );";
 

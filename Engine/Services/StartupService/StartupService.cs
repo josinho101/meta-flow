@@ -4,9 +4,9 @@ namespace Engine.Services.StartupService
 {
     public class StartupService : IStartupService
     {
-        private readonly IMetaFlowRepository metaFlowRepository;
+        private readonly IStartupRepository metaFlowRepository;
 
-        public StartupService(IMetaFlowRepository metaFlowRepository)
+        public StartupService(IStartupRepository metaFlowRepository)
         {
             this.metaFlowRepository = metaFlowRepository;
         }
