@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MetaParsers\MetaParsers.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Repository\Repository.csproj" />
     <ProjectReference Include="..\Validators\Validators.csproj" />
   </ItemGroup>
 

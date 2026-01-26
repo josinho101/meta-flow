@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Npgsql;
+﻿using Npgsql;
 using System.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace Repository.Base
 {
@@ -34,7 +34,7 @@ namespace Repository.Base
 
         public async Task<int> ExecuteNonQueryAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null)
         {
-            await using var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection);
+            using var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection);
             AddParameters(cmd, parameters);
             return await cmd.ExecuteNonQueryAsync();
         }
@@ -48,16 +48,16 @@ namespace Repository.Base
 
         public async Task<object?> ExecuteScalarAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null)
         {
-            await using var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection);
+            using var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection);
             AddParameters(cmd, parameters);
             return await cmd.ExecuteScalarAsync();
         }
 
         public async Task<bool> ExecuteTransactionAsync(List<Func<IDbConnection, IDbTransaction, Task>> operations)
         {
-            await using var conn = new NpgsqlConnection(connectionString);
+            using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
-            await using var transaction = await conn.BeginTransactionAsync();
+            using var transaction = await conn.BeginTransactionAsync();
             try
             {
                 foreach (var operation in operations)

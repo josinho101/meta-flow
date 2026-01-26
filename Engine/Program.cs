@@ -1,4 +1,5 @@
 using Engine;
+using Engine.Services.StartupService;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -37,6 +38,12 @@ try
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var startupService = app.Services.GetRequiredService<IStartupService>();
+        await startupService.InitApp();
+    }
 
     app.Run();
 }

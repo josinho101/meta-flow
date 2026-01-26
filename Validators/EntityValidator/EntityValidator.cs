@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Models.Entity;
-using System.ComponentModel.DataAnnotations;
 
 namespace Validators.EntityValidator
 {

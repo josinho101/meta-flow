@@ -2,7 +2,7 @@
 {
     public interface IMetaFlowRepository
     {
-        bool GenarateAppTable();
-        bool GenarateEntityTable();
+        Task<bool> GenarateAppTable();
+        Task<bool> GenarateEntityTable();
     }
 }
