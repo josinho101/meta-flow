@@ -1,7 +1,6 @@
 ﻿using Engine.Models.ViewModels;
 using Engine.Services.AppsService;
 using Microsoft.AspNetCore.Mvc;
-using Models.Apps;
 
 namespace Engine.Controllers.Admin
 {
