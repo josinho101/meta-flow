@@ -13,10 +13,13 @@ namespace Engine.Services.AppsService
 
         private readonly IAppRepository appRepository;
 
-        public AppService(IAppRepository appRepository, ILogger<AppRepository> logger)
+        private readonly IDbMetadataRepository dbMetadataRepository;
+
+        public AppService(ILogger<AppRepository> logger, IAppRepository appRepository, IDbMetadataRepository dbMetadataRepository)
         {
-            this.appRepository = appRepository;
             this.logger = logger;
+            this.appRepository = appRepository;
+            this.dbMetadataRepository = dbMetadataRepository;
         }
 
         public async Task<AppViewModel> Create(AppViewModel model)
@@ -31,6 +34,9 @@ namespace Engine.Services.AppsService
 
                 app.Status = (short)Status.Active;
                 var result = await appRepository.Create(app);
+                // create database and user for the app
+                await dbMetadataRepository.CreateDb(app.Name);
+
                 return result.ToViewModel();
             }
             catch (Exception ex)

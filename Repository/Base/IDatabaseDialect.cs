@@ -6,8 +6,10 @@ namespace Repository.Base
     {
         Task<IDbConnection> OpenConnectionAsync();
         Task<int> ExecuteNonQueryAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null);
+        Task<int> ExecuteNonQueryAsync(IDbConnection connection, IDbTransaction trans, string sql, Dictionary<string, object>? parameters = null);
         Task<object?> ExecuteScalarAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null);
         Task<IDataReader> ExecuteReaderAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null);
         Task<bool> ExecuteTransactionAsync(List<Func<IDbConnection, IDbTransaction, Task>> operations);
+        string EscapeIdentifier(string identifier);
     }
 }

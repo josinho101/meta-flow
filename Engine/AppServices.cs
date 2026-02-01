@@ -25,6 +25,8 @@ namespace Engine
             services.AddSingleton<IAppService, AppService>();
             services.AddSingleton<IAppRepository, AppRepository>();
 
+            services.AddSingleton<IDbMetadataRepository, DbMetadataRepository>();
+
             return services;
         }
     }

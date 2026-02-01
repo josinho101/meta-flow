@@ -39,6 +39,13 @@ namespace Repository.Base
             return await cmd.ExecuteNonQueryAsync();
         }
 
+        public async Task<int> ExecuteNonQueryAsync(IDbConnection connection, IDbTransaction trans, string sql, Dictionary<string, object>? parameters = null)
+        {
+            using var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection, (NpgsqlTransaction?)trans);
+            AddParameters(cmd, parameters);
+            return await cmd.ExecuteNonQueryAsync();
+        }
+
         public async Task<IDataReader> ExecuteReaderAsync(IDbConnection connection, string sql, Dictionary<string, object>? parameters = null)
         {
             var cmd = new NpgsqlCommand(sql, (NpgsqlConnection?)connection);
@@ -79,6 +86,12 @@ namespace Repository.Base
             {
                 cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
             }
+        }
+
+        public string EscapeIdentifier(string identifier)
+        {
+            using var builder = new NpgsqlCommandBuilder();
+            return builder.QuoteIdentifier(identifier);
         }
     }
 }
