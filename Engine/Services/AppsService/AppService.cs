@@ -9,11 +9,11 @@ namespace Engine.Services.AppsService
 {
     public class AppService : IAppService
     {
-        private readonly ILogger<AppPostgresRepository> logger;
+        private readonly ILogger<AppRepository> logger;
 
         private readonly IAppRepository appRepository;
 
-        public AppService(IAppRepository appRepository, ILogger<AppPostgresRepository> logger)
+        public AppService(IAppRepository appRepository, ILogger<AppRepository> logger)
         {
             this.appRepository = appRepository;
             this.logger = logger;
@@ -31,10 +31,6 @@ namespace Engine.Services.AppsService
 
                 app.Status = (short)Status.Active;
                 var result = await appRepository.Create(app);
-                if (result == null)
-                {
-                    return null;
-                }
                 return result.ToViewModel();
             }
             catch (Exception ex)
@@ -63,7 +59,7 @@ namespace Engine.Services.AppsService
             }
         }
 
-        public async Task<AppViewModel> Get(int id)
+        public async Task<AppViewModel?> Get(int id)
         {
             try
             {

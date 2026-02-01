@@ -4,21 +4,25 @@ namespace Engine.Services.StartupService
 {
     public class StartupService : IStartupService
     {
-        private readonly IStartupRepository metaFlowRepository;
+        private readonly IStartupRepository startupRepository;
 
         private readonly ILogger<StartupService> logger;
 
-        public StartupService(IStartupRepository metaFlowRepository, ILogger<StartupService> logger)
+        public StartupService(IStartupRepository startupRepository, ILogger<StartupService> logger)
         {
-            this.metaFlowRepository = metaFlowRepository;
+            this.startupRepository = startupRepository;
             this.logger = logger;
         }
 
         public async Task InitApp()
         {
-            await metaFlowRepository.GenarateAppTable();
+            await startupRepository.GenarateAppTable();
             logger.LogInformation("App table generation completed");
-            await metaFlowRepository.GenarateEntityTable();
+
+            await startupRepository.GenarateDbMetadataTable();
+            logger.LogInformation("DBMetadata table generation completed");
+
+            await startupRepository.GenarateEntityTable();
             logger.LogInformation("Entity table generation completed");
         }
     }

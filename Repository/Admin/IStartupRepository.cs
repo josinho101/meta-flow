@@ -4,5 +4,6 @@
     {
         Task<bool> GenarateAppTable();
         Task<bool> GenarateEntityTable();
+        Task<bool> GenarateDbMetadataTable();
     }
 }

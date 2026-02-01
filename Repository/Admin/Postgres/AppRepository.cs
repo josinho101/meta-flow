@@ -5,11 +5,11 @@ using System.Data;
 
 namespace Repository.Admin.Postgres
 {
-    public class AppPostgresRepository : IAppRepository
+    public class AppRepository : IAppRepository
     {
         private readonly IDatabaseDialect database;
 
-        public AppPostgresRepository(IDatabaseDialect database)
+        public AppRepository(IDatabaseDialect database)
         {
             this.database = database;
         }

@@ -20,10 +20,10 @@ namespace Engine
             services.AddSingleton<IDatabaseDialect, PostgresDialect>();
 
             services.AddSingleton<IStartupService, StartupService>();
-            services.AddSingleton<IStartupRepository, StartupPostgresRepository>();
+            services.AddSingleton<IStartupRepository, StartupRepository>();
 
             services.AddSingleton<IAppService, AppService>();
-            services.AddSingleton<IAppRepository, AppPostgresRepository>();
+            services.AddSingleton<IAppRepository, AppRepository>();
 
             return services;
         }
