@@ -1,4 +1,4 @@
-﻿namespace Models.Apps
+﻿namespace Models
 {
     public class App
     {

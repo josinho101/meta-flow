@@ -1,4 +1,4 @@
-﻿using Models.Apps;
+﻿using Models;
 
 namespace Repository.Admin
 {

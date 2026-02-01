@@ -1,9 +1,9 @@
-﻿using Models.Apps;
-using Models.Enums;
+﻿using Models.Enums;
 using Repository.Admin;
 using Engine.Exceptions;
 using Engine.Models.ViewModels;
 using Repository.Admin.Postgres;
+using Models;
 
 namespace Engine.Services.AppsService
 {
@@ -54,6 +54,10 @@ namespace Engine.Services.AppsService
                 {
                     throw new EntityNotFoundException($"App with {id} not found");
                 }
+
+                // delete database and user for the app
+                var app = await appRepository.Get(id);
+                await dbMetadataRepository.DeleteDb(app.Name);
 
                 var result = await appRepository.Delete(id);
                 return result;

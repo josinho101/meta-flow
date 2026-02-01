@@ -1,4 +1,4 @@
-﻿using Models.Apps;
+﻿using Models;
 using Models.Enums;
 using Repository.Base;
 using System.Data;
