@@ -1,4 +1,5 @@
 using Engine;
+using Engine.Handlers;
 using Engine.Services.StartupService;
 using Serilog;
 
@@ -19,6 +20,8 @@ try
 
     builder.Configuration.AddJsonFile("entityfieldtypes.json", optional: false, reloadOnChange: true);
 
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -35,6 +38,7 @@ try
         app.UseSwaggerUI();
     }
 
+    app.UseExceptionHandler();
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();

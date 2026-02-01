@@ -1,7 +1,8 @@
-﻿using Engine.Models.ViewModels;
-using Models.Apps;
+﻿using Models.Apps;
 using Models.Enums;
 using Repository.Admin;
+using Engine.Exceptions;
+using Engine.Models.ViewModels;
 
 namespace Engine.Services.AppsService
 {
@@ -22,6 +23,11 @@ namespace Engine.Services.AppsService
             try
             {
                 App app = model.ToDao();
+                if (await appRepository.FindByName(app.Name))
+                {
+                    throw new DuplicateEntityException("App with the same name already exists");
+                }
+
                 app.Status = (short)Status.Active;
                 var result = await appRepository.Create(app);
                 if (result == null)
@@ -41,6 +47,11 @@ namespace Engine.Services.AppsService
         {
             try
             {
+                if (!await appRepository.FindById(id))
+                {
+                    throw new EntityNotFoundException($"App with {id} not found");
+                }
+
                 var result = await appRepository.Delete(id);
                 return result;
             }
@@ -83,6 +94,11 @@ namespace Engine.Services.AppsService
         {
             try
             {
+                if (await appRepository.FindByName(app.Name))
+                {
+                    throw new DuplicateEntityException("App with the same name already exists");
+                }
+
                 var result = await appRepository.Update(id, app.ToDao());
                 return result;
             }

@@ -21,7 +21,7 @@ namespace Repository.Admin
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS Apps (
                     id SMALLSERIAL PRIMARY KEY,
-                    name VARCHAR(100),
+                    name VARCHAR(100) UNIQUE,
                     description VARCHAR(500),
                     createdDate TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                     updatedDate TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

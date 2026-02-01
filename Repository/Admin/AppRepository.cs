@@ -3,6 +3,7 @@ using Models.Apps;
 using Models.Enums;
 using Repository.Base;
 using System.Data;
+using System.Xml.Linq;
 
 namespace Repository.Admin
 {
@@ -121,6 +122,32 @@ namespace Repository.Admin
             var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
 
             return result > 0;
+        }
+
+        public async Task<bool> FindByName(string name)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "name", name }
+            };
+            string sql = @"SELECT COUNT(1) FROM Apps WHERE Name=@name";
+            var result = await database.ExecuteScalarAsync(connection, sql, parameters);
+
+            return Convert.ToInt32(result) > 0;
+        }
+
+        public async Task<bool> FindById(int id)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "id", id }
+            };
+            string sql = @"SELECT COUNT(1) FROM Apps WHERE Id=@id";
+            var result = await database.ExecuteScalarAsync(connection, sql, parameters);
+
+            return Convert.ToInt32(result) > 0;
         }
     }
 }
