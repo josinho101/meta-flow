@@ -87,11 +87,5 @@ namespace Repository.Base
                 cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
             }
         }
-
-        public string EscapeIdentifier(string identifier)
-        {
-            using var builder = new NpgsqlCommandBuilder();
-            return builder.QuoteIdentifier(identifier);
-        }
     }
 }
