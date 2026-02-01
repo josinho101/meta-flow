@@ -1,22 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
-using Models.Apps;
+﻿using Models.Apps;
 using Models.Enums;
 using Repository.Base;
 using System.Data;
-using System.Xml.Linq;
 
-namespace Repository.Admin
+namespace Repository.Admin.Postgres
 {
-    public class AppRepository : IAppRepository
+    public class AppPostgresRepository : IAppRepository
     {
         private readonly IDatabaseDialect database;
 
-        private readonly ILogger<AppRepository> logger;
-
-        public AppRepository(IDatabaseDialect database, ILogger<AppRepository> logger)
+        public AppPostgresRepository(IDatabaseDialect database)
         {
             this.database = database;
-            this.logger = logger;
         }
 
         public async Task<App> Create(App app)

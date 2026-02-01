@@ -3,16 +3,17 @@ using Models.Enums;
 using Repository.Admin;
 using Engine.Exceptions;
 using Engine.Models.ViewModels;
+using Repository.Admin.Postgres;
 
 namespace Engine.Services.AppsService
 {
     public class AppService : IAppService
     {
-        private readonly ILogger<AppRepository> logger;
+        private readonly ILogger<AppPostgresRepository> logger;
 
         private readonly IAppRepository appRepository;
 
-        public AppService(IAppRepository appRepository, ILogger<AppRepository> logger)
+        public AppService(IAppRepository appRepository, ILogger<AppPostgresRepository> logger)
         {
             this.appRepository = appRepository;
             this.logger = logger;

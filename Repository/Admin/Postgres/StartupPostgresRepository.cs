@@ -1,19 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Data;
 using Repository.Base;
-using System.Data;
 
-namespace Repository.Admin
+namespace Repository.Admin.Postgres
 {
-    public class StartupRepository : IStartupRepository
+    public class StartupPostgresRepository : IStartupRepository
     {
         private readonly IDatabaseDialect databaseDialect;
 
-        private readonly ILogger<StartupRepository> logger;
-
-        public StartupRepository(IDatabaseDialect databaseDialect, ILogger<StartupRepository> logger)
+        public StartupPostgresRepository(IDatabaseDialect databaseDialect)
         {
             this.databaseDialect = databaseDialect;
-            this.logger = logger;
         }
 
         public async Task<bool> GenarateAppTable()
@@ -30,7 +26,6 @@ namespace Repository.Admin
 
             using IDbConnection connection = await databaseDialect.OpenConnectionAsync();
             await databaseDialect.ExecuteNonQueryAsync(connection, sql);
-            logger.LogInformation("App table generation completed");
             return true;
         }
 

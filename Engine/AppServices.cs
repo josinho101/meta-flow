@@ -3,6 +3,7 @@ using Engine.Services.AppsService;
 using Engine.Services.StartupService;
 using MetaParsers.EntityParser;
 using Repository.Admin;
+using Repository.Admin.Postgres;
 using Repository.Base;
 using Validators.EntityValidator;
 
@@ -19,10 +20,10 @@ namespace Engine
             services.AddSingleton<IDatabaseDialect, PostgresDialect>();
 
             services.AddSingleton<IStartupService, StartupService>();
-            services.AddSingleton<IStartupRepository, StartupRepository>();
+            services.AddSingleton<IStartupRepository, StartupPostgresRepository>();
 
             services.AddSingleton<IAppService, AppService>();
-            services.AddSingleton<IAppRepository, AppRepository>();
+            services.AddSingleton<IAppRepository, AppPostgresRepository>();
 
             return services;
         }
