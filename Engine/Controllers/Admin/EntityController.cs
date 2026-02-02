@@ -32,6 +32,7 @@ namespace Engine.Controllers.Admin
             {
                 using var stream = file.OpenReadStream();
                 var (entity, errors) = await entityService.ParseAndValidateAsync(appName, stream);
+                await entityService.SaveAsync(appName, entity);
 
                 if (errors != null && errors.Any())
                 {

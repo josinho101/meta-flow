@@ -15,6 +15,7 @@ namespace Engine
         {
             services.AddSingleton<IEntityParser<string>, StringEntityParser>();
             services.AddSingleton<IEntityValidator, EntityValidator>();
+            services.AddSingleton<IEntityRepository, EntityRepository>();
             services.AddSingleton<IEntityService, Services.EntityService.EntityService>();
 
             services.AddSingleton<IDatabaseDialect, PostgresDialect>();

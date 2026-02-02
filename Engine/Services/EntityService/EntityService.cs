@@ -1,6 +1,8 @@
 ﻿using Engine.EntityService;
+using Engine.Exceptions;
 using MetaParsers.EntityParser;
 using Models.Entity;
+using Repository.Admin;
 using Validators.EntityValidator;
 
 namespace Engine.Services.EntityService
@@ -10,15 +12,21 @@ namespace Engine.Services.EntityService
         private readonly IEntityParser<string> parser;
         private readonly IEntityValidator entityValidator;
         private readonly ILogger<EntityService> logger;
+        private readonly IEntityRepository entityRepository;
+        private readonly IAppRepository appRepository;
 
         public EntityService(
             IEntityParser<string> parser, 
             ILogger<EntityService> logger, 
-            IEntityValidator entityValidator)
+            IEntityValidator entityValidator,
+            IEntityRepository entityRepository,
+            IAppRepository appRepository)
         {
             this.parser = parser;
             this.logger = logger;
             this.entityValidator = entityValidator;
+            this.entityRepository = entityRepository;
+            this.appRepository = appRepository;
         }
 
         public async Task<(Entity? entity, List<string>? errors)> ParseAndValidateAsync(string app, Stream stream)
@@ -44,6 +52,28 @@ namespace Engine.Services.EntityService
             logger.LogInformation($"Parsing completed for entity {entity.Name}, App - {app}");
 
             return (entity, null);
+        }
+
+        public async Task<bool> SaveAsync(string appName, Entity entity)
+        {
+            try
+            {
+                var app = await appRepository.GetByName(appName);
+                if (app == null)
+                {
+                    logger.LogError($"App {appName} not found while creating entity {entity.Name}");
+                    throw new EntityNotFoundException($"App {appName} not found while creating entity {entity.Name}");
+                }
+                entity.AppId = app.Id;
+                await entityRepository.SaveAsync(entity);
+                logger.LogInformation($"Entity {entity.Name} saved successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error saving entity {entity.Name}: {ex.Message}");
+                return false;
+            }
         }
     }
 }
