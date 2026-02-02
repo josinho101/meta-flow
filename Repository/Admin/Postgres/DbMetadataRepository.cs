@@ -1,4 +1,6 @@
-﻿using Repository.Base;
+﻿using Models;
+using Models.Enums;
+using Repository.Base;
 using System.Data;
 
 namespace Repository.Admin.Postgres
@@ -7,9 +9,12 @@ namespace Repository.Admin.Postgres
     {
         private readonly IDatabaseDialect database;
 
-        public DbMetadataRepository(IDatabaseDialect database)
+        private readonly IAppRepository appRepository;
+
+        public DbMetadataRepository(IDatabaseDialect database, IAppRepository appRepository)
         {
             this.database = database;
+            this.appRepository = appRepository;
         }
 
         private async Task CreateDatabase(string dbName, string username, IDbConnection connection)
@@ -36,47 +41,72 @@ namespace Repository.Admin.Postgres
             await database.ExecuteNonQueryAsync(connection, sql);
         }
 
-        private async Task<bool> SaveDbMetadata()
+        private async Task<bool> SaveDbMetadata(DbMetadata metadata, IDbConnection connection)
         {
+            DateTime date = DateTime.UtcNow;
+            var parameters = new Dictionary<string, object>
+            {
+                { "appId", metadata.AppId },
+                { "name", metadata.DbName },
+                { "username", metadata.Username },
+                { "password", metadata.Password },
+                { "status", (int)Status.Active },
+                { "createdDate", date },
+                { "updatedDate", date }
+            };
+            string sql = @"INSERT INTO DbMetadata (appId, name, username, password, createdDate, updatedDate, status) 
+                              VALUES (@appId, @name, @username, @password, @createdDate, @updatedDate, @status)";
+            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
             return await Task.FromResult(true);
         }
 
-        private async Task<bool> DeleteDbMetadata()
+        private async Task<bool> DeleteDbMetadata(DbMetadata metadata, IDbConnection connection)
         {
-            return await Task.FromResult(true);
+            var parameters = new Dictionary<string, object>
+            {
+                { "appId", metadata.AppId },
+                { "status", (int)Status.Deleted },
+                { "updatedDate", DateTime.UtcNow }
+            };
+            string sql = @"UPDATE DbMetadata SET Status=@status, UpdatedDate=@updatedDate WHERE appId=@appId";
+            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+
+            return result > 0;
         }
 
-        public async Task<bool> CreateDb(string appName)
+        public async Task<bool> CreateDb(App app)
         {
-            string dbName = $"db_{appName}";
-            string username = $"user_{appName}";
+            string dbName = $"db_{app.Name}";
+            string username = $"user_{app.Name}";
             string password = "somepassword";
-
-            using IDbConnection connection = await database.OpenConnectionAsync();
 
             try
             {
+                var existingApp = await appRepository.GetByName(app.Name);
+
+                using IDbConnection connection = await database.OpenConnectionAsync();
                 await CreateDatabaseUser(username, password, connection);
                 await CreateDatabase(dbName, username, connection);
+                await SaveDbMetadata(new DbMetadata { AppId = existingApp.Id, DbName = dbName, Username = username, Password = password }, connection);
 
                 return true;
             }
             catch (Exception)
             {
-                await DropDatabase(dbName, connection);
-                await DropDatabaseUser(username, connection);
+                await DeleteDb(app);
                 throw;
             }
         }
 
-        public async Task<bool> DeleteDb(string appName)
+        public async Task<bool> DeleteDb(App app)
         {
-            string dbName = $"db_{appName}";
-            string username = $"user_{appName}";
+            string dbName = $"db_{app.Name}";
+            string username = $"user_{app.Name}";
 
             using IDbConnection connection = await database.OpenConnectionAsync();
-           await DropDatabase(dbName, connection);
-                await DropDatabaseUser(username, connection);
+            await DropDatabase(dbName, connection);
+            await DropDatabaseUser(username, connection);
+            await DeleteDbMetadata(new DbMetadata { AppId = app.Id }, connection);
 
             return true;
         }

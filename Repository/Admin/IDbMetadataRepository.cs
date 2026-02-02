@@ -1,8 +1,10 @@
-﻿namespace Repository.Admin
+﻿using Models;
+
+namespace Repository.Admin
 {
     public interface IDbMetadataRepository
     {
-        Task<bool> CreateDb(string name);
-        Task<bool> DeleteDb(string name);
+        Task<bool> CreateDb(App app);
+        Task<bool> DeleteDb(App app);
     }
 }

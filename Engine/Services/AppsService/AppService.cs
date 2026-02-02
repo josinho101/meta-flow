@@ -34,8 +34,11 @@ namespace Engine.Services.AppsService
 
                 app.Status = (short)Status.Active;
                 var result = await appRepository.Create(app);
+                logger.LogInformation($"App {app.Name} created");
+
                 // create database and user for the app
-                await dbMetadataRepository.CreateDb(app.Name);
+                await dbMetadataRepository.CreateDb(app);
+                logger.LogInformation($"App database and user created");
 
                 return result.ToViewModel();
             }
@@ -50,16 +53,19 @@ namespace Engine.Services.AppsService
         {
             try
             {
-                if (!await appRepository.FindById(id))
+
+                var app = await appRepository.GetById(id);
+                if (app == null)
                 {
                     throw new EntityNotFoundException($"App with {id} not found");
                 }
 
                 // delete database and user for the app
-                var app = await appRepository.Get(id);
-                await dbMetadataRepository.DeleteDb(app.Name);
+                await dbMetadataRepository.DeleteDb(app);
+                logger.LogInformation($"App {app.Name} database and user deleted");
 
                 var result = await appRepository.Delete(id);
+                logger.LogInformation($"App {app.Name} deleted");
                 return result;
             }
             catch (Exception ex)
@@ -73,7 +79,7 @@ namespace Engine.Services.AppsService
         {
             try
             {
-                var app = await appRepository.Get(id);
+                var app = await appRepository.GetById(id);
                 return app?.ToViewModel();
             }
             catch (Exception ex)
@@ -107,6 +113,7 @@ namespace Engine.Services.AppsService
                 }
 
                 var result = await appRepository.Update(id, app.ToDao());
+                logger.LogInformation($"App with {id} updated", app);
                 return result;
             }
             catch (Exception ex)

@@ -51,7 +51,7 @@ namespace Repository.Admin.Postgres
             return result > 0;
         }
 
-        public async Task<App> Get(int id)
+        public async Task<App> GetById(int id)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -60,6 +60,31 @@ namespace Repository.Admin.Postgres
                 { "status", (int)Status.Active }
             };
             string sql = @"SELECT Id, Name, Description, CreatedDate FROM Apps WHERE Status=@status AND Id=@id";
+            using var reader = await database.ExecuteReaderAsync(connection, sql, parameters);
+            while (reader.Read())
+            {
+                var app = new App
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate"))
+                };
+                return app;
+            }
+
+            return null;
+        }
+
+        public async Task<App> GetByName(string name)
+        {
+            using IDbConnection connection = await database.OpenConnectionAsync();
+            var parameters = new Dictionary<string, object>
+            {
+                { "name", name },
+                { "status", (int)Status.Active }
+            };
+            string sql = @"SELECT Id, Name, Description, CreatedDate FROM Apps WHERE Status=@status AND name=@name";
             using var reader = await database.ExecuteReaderAsync(connection, sql, parameters);
             while (reader.Read())
             {
