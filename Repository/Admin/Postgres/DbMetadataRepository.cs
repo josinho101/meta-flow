@@ -17,25 +17,25 @@ namespace Repository.Admin.Postgres
             this.appRepository = appRepository;
         }
 
-        private async Task CreateDatabase(string dbName, string username, IDbConnection connection)
+        private async Task CreateDatabaseAsync(string dbName, string username, IDbConnection connection)
         {
             string sql = $"CREATE DATABASE {dbName} WITH OWNER = {username}";
             await database.ExecuteNonQueryAsync(connection, sql);
         }
 
-        private async Task CreateDatabaseUser(string username, string password, IDbConnection connection)
+        private async Task CreateDatabaseUserAsync(string username, string password, IDbConnection connection)
         {
             string sql = $"CREATE USER {username} WITH ENCRYPTED PASSWORD '{password}'";
             await database.ExecuteNonQueryAsync(connection, sql);
         }
 
-        private async Task DropDatabaseUser(string username, IDbConnection connection)
+        private async Task DropDatabaseUserAsync(string username, IDbConnection connection)
         {
             string sql = $"DROP USER IF EXISTS {username}";
             await database.ExecuteNonQueryAsync(connection, sql);
         }
 
-        private async Task DropDatabase(string dbName, IDbConnection connection)
+        private async Task DropDatabaseAsync(string dbName, IDbConnection connection)
         {
             string sql = $"DROP DATABASE IF EXISTS {dbName} WITH (FORCE)";
             await database.ExecuteNonQueryAsync(connection, sql);
@@ -74,7 +74,7 @@ namespace Repository.Admin.Postgres
             return result > 0;
         }
 
-        public async Task<bool> CreateDb(App app)
+        public async Task<bool> CreateDbAsync(App app)
         {
             string dbName = $"db_{app.Name}";
             string username = $"user_{app.Name}";
@@ -82,30 +82,30 @@ namespace Repository.Admin.Postgres
 
             try
             {
-                var existingApp = await appRepository.GetByName(app.Name);
+                var existingApp = await appRepository.GetByNameAsync(app.Name);
 
                 using IDbConnection connection = await database.OpenConnectionAsync();
-                await CreateDatabaseUser(username, password, connection);
-                await CreateDatabase(dbName, username, connection);
+                await CreateDatabaseUserAsync(username, password, connection);
+                await CreateDatabaseAsync(dbName, username, connection);
                 await SaveDbMetadata(new DbMetadata { AppId = existingApp.Id, DbName = dbName, Username = username, Password = password }, connection);
 
                 return true;
             }
             catch (Exception)
             {
-                await DeleteDb(app);
+                await DeleteDbAsync(app);
                 throw;
             }
         }
 
-        public async Task<bool> DeleteDb(App app)
+        public async Task<bool> DeleteDbAsync(App app)
         {
             string dbName = $"db_{app.Name}";
             string username = $"user_{app.Name}";
 
             using IDbConnection connection = await database.OpenConnectionAsync();
-            await DropDatabase(dbName, connection);
-            await DropDatabaseUser(username, connection);
+            await DropDatabaseAsync(dbName, connection);
+            await DropDatabaseUserAsync(username, connection);
             await DeleteDbMetadata(new DbMetadata { AppId = app.Id }, connection);
 
             return true;

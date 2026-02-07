@@ -22,22 +22,22 @@ namespace Engine.Services.AppsService
             this.dbMetadataRepository = dbMetadataRepository;
         }
 
-        public async Task<AppViewModel> Create(AppViewModel model)
+        public async Task<AppViewModel> CreateAsync(AppViewModel model)
         {
             try
             {
                 App app = model.ToDao();
-                if (await appRepository.FindByName(app.Name))
+                if (await appRepository.FindByNameAsync(app.Name))
                 {
                     throw new DuplicateEntityException("App with the same name already exists");
                 }
 
                 app.Status = (short)Status.Active;
-                var result = await appRepository.Create(app);
+                var result = await appRepository.CreateAsync(app);
                 logger.LogInformation($"App {app.Name} created");
 
                 // create database and user for the app
-                await dbMetadataRepository.CreateDb(app);
+                await dbMetadataRepository.CreateDbAsync(app);
                 logger.LogInformation($"App database and user created");
 
                 return result.ToViewModel();
@@ -49,22 +49,22 @@ namespace Engine.Services.AppsService
             }
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             try
             {
 
-                var app = await appRepository.GetById(id);
+                var app = await appRepository.GetByIdAsync(id);
                 if (app == null)
                 {
                     throw new EntityNotFoundException($"App with {id} not found");
                 }
 
                 // delete database and user for the app
-                await dbMetadataRepository.DeleteDb(app);
+                await dbMetadataRepository.DeleteDbAsync(app);
                 logger.LogInformation($"App {app.Name} database and user deleted");
 
-                var result = await appRepository.Delete(id);
+                var result = await appRepository.DeleteAsync(id);
                 logger.LogInformation($"App {app.Name} deleted");
                 return result;
             }
@@ -75,11 +75,11 @@ namespace Engine.Services.AppsService
             }
         }
 
-        public async Task<AppViewModel?> Get(int id)
+        public async Task<AppViewModel?> GetAsync(int id)
         {
             try
             {
-                var app = await appRepository.GetById(id);
+                var app = await appRepository.GetByIdAsync(id);
                 return app?.ToViewModel();
             }
             catch (Exception ex)
@@ -89,11 +89,11 @@ namespace Engine.Services.AppsService
             }
         }
 
-        public async Task<List<AppViewModel>> GetAll()
+        public async Task<List<AppViewModel>> GetAllAsync()
         {
             try
             {
-                var apps = await appRepository.GetAll();
+                var apps = await appRepository.GetAllAsync();
                 return apps?.Select(app => app.ToViewModel()).ToList();
             }
             catch (Exception ex)
@@ -103,16 +103,16 @@ namespace Engine.Services.AppsService
             }
         }
 
-        public async Task<bool> Update(int id, AppViewModel app)
+        public async Task<bool> UpdateAsync(int id, AppViewModel app)
         {
             try
             {
-                if (await appRepository.FindByName(app.Name))
+                if (await appRepository.FindByNameAsync(app.Name))
                 {
                     throw new DuplicateEntityException("App with the same name already exists");
                 }
 
-                var result = await appRepository.Update(id, app.ToDao());
+                var result = await appRepository.UpdateAsync(id, app.ToDao());
                 logger.LogInformation($"App with {id} updated", app);
                 return result;
             }

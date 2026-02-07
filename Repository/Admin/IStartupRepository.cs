@@ -2,8 +2,8 @@
 {
     public interface IStartupRepository
     {
-        Task<bool> GenarateAppTable();
-        Task<bool> GenarateEntityTable();
-        Task<bool> GenarateDbMetadataTable();
+        Task<bool> GenarateAppTableAsync();
+        Task<bool> GenarateEntityTableAsync();
+        Task<bool> GenarateDbMetadataTableAsync();
     }
 }

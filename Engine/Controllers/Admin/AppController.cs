@@ -18,21 +18,21 @@ namespace Engine.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Create(AppViewModel app)
         {
-            var newApp = await appsService.Create(app);
+            var newApp = await appsService.CreateAsync(app);
             return Created($"/apps/{newApp.Id}", newApp);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var apps = await appsService.GetAll();
+            var apps = await appsService.GetAllAsync();
             return Ok(apps);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var app = await appsService.Get(id);
+            var app = await appsService.GetAsync(id);
             if(app == null)
             {
                 return NotFound();
@@ -43,14 +43,14 @@ namespace Engine.Controllers.Admin
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, AppViewModel app)
         {
-            var updatedApp = await appsService.Update(id, app);
+            var updatedApp = await appsService.UpdateAsync(id, app);
             return Ok(updatedApp);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await appsService.Delete(id);
+            var result = await appsService.DeleteAsync(id);
             return Ok(result);
         }
     }

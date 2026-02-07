@@ -14,15 +14,15 @@ namespace Engine.Services.StartupService
             this.logger = logger;
         }
 
-        public async Task InitApp()
+        public async Task InitAppAsync()
         {
-            await startupRepository.GenarateAppTable();
+            await startupRepository.GenarateAppTableAsync();
             logger.LogInformation("App table generation completed");
 
-            await startupRepository.GenarateDbMetadataTable();
+            await startupRepository.GenarateDbMetadataTableAsync();
             logger.LogInformation("DBMetadata table generation completed");
 
-            await startupRepository.GenarateEntityTable();
+            await startupRepository.GenarateEntityTableAsync();
             logger.LogInformation("Entity table generation completed");
         }
     }

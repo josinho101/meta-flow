@@ -4,13 +4,13 @@ namespace Repository.Admin
 {
     public interface IAppRepository
     {
-        Task<App> Create(App app);
-        Task<List<App>> GetAll();
-        Task<App> GetById(int id);
-        Task<App> GetByName(string name);
-        Task<bool> Update(int id, App app);
-        Task<bool> Delete(int id);
-        Task<bool> FindByName(string name);
-        Task<bool> FindById(int id);
+        Task<App> CreateAsync(App app);
+        Task<List<App>> GetAllAsync();
+        Task<App> GetByIdAsync(int id);
+        Task<App> GetByNameAsync(string name);
+        Task<bool> UpdateAsync(int id, App app);
+        Task<bool> DeleteAsync(int id);
+        Task<bool> FindByNameAsync(string name);
+        Task<bool> FindByIdAsync(int id);
     }
 }

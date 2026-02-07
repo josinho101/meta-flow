@@ -46,7 +46,7 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var startupService = app.Services.GetRequiredService<IStartupService>();
-        await startupService.InitApp();
+        await startupService.InitAppAsync();
     }
 
     app.Run();

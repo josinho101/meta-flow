@@ -4,7 +4,7 @@ namespace Repository.Admin
 {
     public interface IDbMetadataRepository
     {
-        Task<bool> CreateDb(App app);
-        Task<bool> DeleteDb(App app);
+        Task<bool> CreateDbAsync(App app);
+        Task<bool> DeleteDbAsync(App app);
     }
 }

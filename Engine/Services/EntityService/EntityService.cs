@@ -58,7 +58,7 @@ namespace Engine.Services.EntityService
         {
             try
             {
-                var app = await appRepository.GetByName(appName);
+                var app = await appRepository.GetByNameAsync(appName);
                 if (app == null)
                 {
                     logger.LogError($"App {appName} not found while creating entity {entity.Name}");

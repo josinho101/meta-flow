@@ -2,6 +2,6 @@
 {
     public interface IStartupService
     {
-        Task InitApp();
+        Task InitAppAsync();
     }
 }

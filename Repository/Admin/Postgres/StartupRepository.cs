@@ -12,7 +12,7 @@ namespace Repository.Admin.Postgres
             this.database = database;
         }
 
-        public async Task<bool> GenarateAppTable()
+        public async Task<bool> GenarateAppTableAsync()
         {
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS Apps (
@@ -29,7 +29,7 @@ namespace Repository.Admin.Postgres
             return true;
         }
 
-        public async Task<bool> GenarateDbMetadataTable()
+        public async Task<bool> GenarateDbMetadataTableAsync()
         {
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS DbMetadata (
@@ -53,7 +53,7 @@ namespace Repository.Admin.Postgres
             return true;
         }
 
-        public async Task<bool> GenarateEntityTable()
+        public async Task<bool> GenarateEntityTableAsync()
         {
             const string sql = @"
                 CREATE TABLE IF NOT EXISTS Entities (

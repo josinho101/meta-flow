@@ -14,7 +14,7 @@ namespace Repository.Admin.Postgres
             this.database = database;
         }
 
-        public async Task<App> Create(App app)
+        public async Task<App> CreateAsync(App app)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             DateTime date = DateTime.UtcNow;
@@ -36,7 +36,7 @@ namespace Repository.Admin.Postgres
             return app;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -51,7 +51,7 @@ namespace Repository.Admin.Postgres
             return result > 0;
         }
 
-        public async Task<App> GetById(int id)
+        public async Task<App> GetByIdAsync(int id)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -76,7 +76,7 @@ namespace Repository.Admin.Postgres
             return null;
         }
 
-        public async Task<App> GetByName(string name)
+        public async Task<App> GetByNameAsync(string name)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -101,7 +101,7 @@ namespace Repository.Admin.Postgres
             return null;
         }
 
-        public async Task<List<App>> GetAll()
+        public async Task<List<App>> GetAllAsync()
         {
             List<App> apps = new List<App>();
             using IDbConnection connection = await database.OpenConnectionAsync();
@@ -127,7 +127,7 @@ namespace Repository.Admin.Postgres
             return apps;
         }
 
-        public async Task<bool> Update(int id, App app)
+        public async Task<bool> UpdateAsync(int id, App app)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -144,7 +144,7 @@ namespace Repository.Admin.Postgres
             return result > 0;
         }
 
-        public async Task<bool> FindByName(string name)
+        public async Task<bool> FindByNameAsync(string name)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
@@ -157,7 +157,7 @@ namespace Repository.Admin.Postgres
             return Convert.ToInt32(result) > 0;
         }
 
-        public async Task<bool> FindById(int id)
+        public async Task<bool> FindByIdAsync(int id)
         {
             using IDbConnection connection = await database.OpenConnectionAsync();
             var parameters = new Dictionary<string, object>
