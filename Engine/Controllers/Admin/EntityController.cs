@@ -28,29 +28,22 @@ namespace Engine.Controllers.Admin
                 return BadRequest(new ErrorResponse("No entity file found. Use field name 'file' to upload entity"));
             }
 
-            try
+            using var stream = file.OpenReadStream();
+            var (entity, errors) = await entityService.ParseAndValidateAsync(appName, stream);
+
+            if (errors != null && errors.Any())
             {
-                using var stream = file.OpenReadStream();
-                var (entity, errors) = await entityService.ParseAndValidateAsync(appName, stream);
+                var errorSummary = string.Join(", ", errors);
+                return BadRequest(new ErrorResponse($"Entity validation for {appName} failed with following errors. {errorSummary}"));
+            }
+            else
+            {
                 await entityService.SaveAsync(appName, entity);
-
-                if (errors != null && errors.Any())
-                {
-                    var errorSummary = string.Join(", ", errors);
-                    return BadRequest(new ErrorResponse($"Entity validation for {appName} failed with following errors. {errorSummary}"));
-                }
-
                 return Created(string.Empty, new SucessResponse<object>()
                 {
                     Success = true,
                     Message = $"Entity {entity?.Name} created sucessfully."
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error while parsing entity file - {FileName}", file.FileName);
-                return StatusCode((int)HttpStatusCode.InternalServerError,
-                    new ErrorResponse("Error while parsing file - {file?.FileName}"));
             }
         }
 

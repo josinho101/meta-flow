@@ -1,9 +1,9 @@
 ﻿using Models.Enums;
-using Repository.Admin;
 using Engine.Exceptions;
 using Engine.Models.ViewModels;
-using Repository.Admin.Postgres;
 using Models;
+using Repository.Postgres.Admin;
+using Repository.Admin;
 
 namespace Engine.Services.AppsService
 {

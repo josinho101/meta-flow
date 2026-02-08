@@ -43,12 +43,6 @@ namespace Engine.Services.EntityService
                 return (null, errors);
             }
 
-            // validate entity
-            // check if this entity already exists for the app
-            // save the entity to meta flow database
-            // generate SQL for the entity
-            // Apply sql to the app database
-
             logger.LogInformation($"Parsing completed for entity {entity.Name}, App - {app}");
 
             return (entity, null);
@@ -61,8 +55,8 @@ namespace Engine.Services.EntityService
                 var app = await appRepository.GetByNameAsync(appName);
                 if (app == null)
                 {
-                    logger.LogError($"App {appName} not found while creating entity {entity.Name}");
-                    throw new EntityNotFoundException($"App {appName} not found while creating entity {entity.Name}");
+                    logger.LogError($"App {appName} not found while saving entity {entity.Name}");
+                    throw new EntityNotFoundException($"App {appName} not found while saving entity {entity.Name}");
                 }
                 entity.AppId = app.Id;
                 await entityRepository.SaveAsync(entity);
@@ -72,7 +66,7 @@ namespace Engine.Services.EntityService
             catch (Exception ex)
             {
                 logger.LogError($"Error saving entity {entity.Name}: {ex.Message}");
-                return false;
+                throw;
             }
         }
     }

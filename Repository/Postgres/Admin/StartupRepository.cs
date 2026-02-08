@@ -1,15 +1,15 @@
-﻿using System.Data;
-using Repository.Base;
+﻿using Repository.Admin;
+using System.Data;
 
-namespace Repository.Admin.Postgres
+namespace Repository.Postgres.Admin
 {
     public class StartupRepository : IStartupRepository
     {
-        private readonly IDatabaseDialect database;
+        private readonly IMetaFlowRepository repository;
 
-        public StartupRepository(IDatabaseDialect database)
+        public StartupRepository(IMetaFlowRepository repository)
         {
-            this.database = database;
+            this.repository = repository;
         }
 
         public async Task<bool> GenarateAppTableAsync()
@@ -24,8 +24,8 @@ namespace Repository.Admin.Postgres
                     status SMALLINT NOT NULL
                 );";
 
-            using IDbConnection connection = await database.OpenConnectionAsync();
-            await database.ExecuteNonQueryAsync(connection, sql);
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            await repository.ExecuteNonQueryAsync(connection, sql);
             return true;
         }
 
@@ -48,8 +48,8 @@ namespace Repository.Admin.Postgres
                       ON DELETE CASCADE
                 );";
 
-            using IDbConnection connection = await database.OpenConnectionAsync();
-            await database.ExecuteNonQueryAsync(connection, sql);
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            await repository.ExecuteNonQueryAsync(connection, sql);
             return true;
         }
 
@@ -73,8 +73,8 @@ namespace Repository.Admin.Postgres
                    CONSTRAINT uq_app_id_name UNIQUE (appId, name)
                 );";
 
-            using IDbConnection connection = await database.OpenConnectionAsync();
-            await database.ExecuteNonQueryAsync(connection, sql);
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            await repository.ExecuteNonQueryAsync(connection, sql);
             return true;
         }
     }

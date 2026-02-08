@@ -1,20 +1,16 @@
 ﻿using Npgsql;
+using Repository.Base;
 using System.Data;
-using Microsoft.Extensions.Configuration;
 
-namespace Repository.Base
+namespace Repository.Postgres.Admin
 {
-    public class PostgresDialect : IDatabaseDialect
+    public abstract class PostgresDialect : IDatabaseDialect
     {
         private readonly string connectionString;
 
-        public PostgresDialect(IConfiguration configuration)
+        public PostgresDialect(string connectionString)
         {
-            this.connectionString = configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrWhiteSpace(this.connectionString))
-            {
-                throw new Exception("Connection string 'DefaultConnection' is not found or is empty.");
-            }
+            this.connectionString = connectionString;
         }
 
         public async Task<IDbConnection> OpenConnectionAsync()

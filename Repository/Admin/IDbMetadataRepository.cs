@@ -6,5 +6,6 @@ namespace Repository.Admin
     {
         Task<bool> CreateDbAsync(App app);
         Task<bool> DeleteDbAsync(App app);
+        Task<DbMetadata> GetDbMetadataByAppNameAsync(string appName);
     }
 }

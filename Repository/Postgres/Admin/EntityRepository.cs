@@ -1,18 +1,18 @@
 ﻿using Models.Entity;
 using Models.Enums;
-using Repository.Base;
+using Repository.Admin;
 using System.Data;
 using System.Text.Json;
 
-namespace Repository.Admin.Postgres
+namespace Repository.Postgres.Admin
 {
     public class EntityRepository : IEntityRepository
     {
-        private readonly IDatabaseDialect database;
+        private readonly IMetaFlowRepository repository;
 
-        public EntityRepository(IDatabaseDialect database)
+        public EntityRepository(IMetaFlowRepository repository)
         {
-            this.database = database;
+            this.repository = repository;
         }
 
         public Task<Entity> GetAsync()
@@ -37,7 +37,7 @@ namespace Repository.Admin.Postgres
 
         public async Task<Entity> SaveAsync(Entity entity)
         {
-            using IDbConnection connection = await database.OpenConnectionAsync();
+            using IDbConnection connection = await repository.OpenConnectionAsync();
             DateTime date = DateTime.UtcNow;
             var parameters = new Dictionary<string, object>
             {
@@ -50,7 +50,7 @@ namespace Repository.Admin.Postgres
             };
             string sql = @"INSERT INTO Entities (appId, name, metadata, createdDate, updatedDate, status) 
                                         VALUES (@appId, @name, @metadata::jsonb, @createdDate, @updatedDate, @status)";
-            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+            var result = await repository.ExecuteNonQueryAsync(connection, sql, parameters);
 
             return entity;
         }

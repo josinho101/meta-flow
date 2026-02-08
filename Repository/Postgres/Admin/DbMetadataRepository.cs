@@ -1,44 +1,44 @@
 ﻿using Models;
 using Models.Enums;
-using Repository.Base;
+using Repository.Admin;
 using System.Data;
 
-namespace Repository.Admin.Postgres
+namespace Repository.Postgres.Admin
 {
     public class DbMetadataRepository : IDbMetadataRepository
     {
-        private readonly IDatabaseDialect database;
+        private readonly IMetaFlowRepository repository;
 
         private readonly IAppRepository appRepository;
 
-        public DbMetadataRepository(IDatabaseDialect database, IAppRepository appRepository)
+        public DbMetadataRepository(IMetaFlowRepository repository, IAppRepository appRepository)
         {
-            this.database = database;
+            this.repository = repository;
             this.appRepository = appRepository;
         }
 
         private async Task CreateDatabaseAsync(string dbName, string username, IDbConnection connection)
         {
             string sql = $"CREATE DATABASE {dbName} WITH OWNER = {username}";
-            await database.ExecuteNonQueryAsync(connection, sql);
+            await repository.ExecuteNonQueryAsync(connection, sql);
         }
 
         private async Task CreateDatabaseUserAsync(string username, string password, IDbConnection connection)
         {
             string sql = $"CREATE USER {username} WITH ENCRYPTED PASSWORD '{password}'";
-            await database.ExecuteNonQueryAsync(connection, sql);
+            await repository.ExecuteNonQueryAsync(connection, sql);
         }
 
         private async Task DropDatabaseUserAsync(string username, IDbConnection connection)
         {
             string sql = $"DROP USER IF EXISTS {username}";
-            await database.ExecuteNonQueryAsync(connection, sql);
+            await repository.ExecuteNonQueryAsync(connection, sql);
         }
 
         private async Task DropDatabaseAsync(string dbName, IDbConnection connection)
         {
             string sql = $"DROP DATABASE IF EXISTS {dbName} WITH (FORCE)";
-            await database.ExecuteNonQueryAsync(connection, sql);
+            await repository.ExecuteNonQueryAsync(connection, sql);
         }
 
         private async Task<bool> SaveDbMetadata(DbMetadata metadata, IDbConnection connection)
@@ -56,7 +56,7 @@ namespace Repository.Admin.Postgres
             };
             string sql = @"INSERT INTO DbMetadata (appId, name, username, password, createdDate, updatedDate, status) 
                               VALUES (@appId, @name, @username, @password, @createdDate, @updatedDate, @status)";
-            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+            var result = await repository.ExecuteNonQueryAsync(connection, sql, parameters);
             return await Task.FromResult(true);
         }
 
@@ -69,7 +69,7 @@ namespace Repository.Admin.Postgres
                 { "updatedDate", DateTime.UtcNow }
             };
             string sql = @"UPDATE DbMetadata SET Status=@status, UpdatedDate=@updatedDate WHERE appId=@appId";
-            var result = await database.ExecuteNonQueryAsync(connection, sql, parameters);
+            var result = await repository.ExecuteNonQueryAsync(connection, sql, parameters);
 
             return result > 0;
         }
@@ -84,7 +84,7 @@ namespace Repository.Admin.Postgres
             {
                 var existingApp = await appRepository.GetByNameAsync(app.Name);
 
-                using IDbConnection connection = await database.OpenConnectionAsync();
+                using IDbConnection connection = await repository.OpenConnectionAsync();
                 await CreateDatabaseUserAsync(username, password, connection);
                 await CreateDatabaseAsync(dbName, username, connection);
                 await SaveDbMetadata(new DbMetadata { AppId = existingApp.Id, DbName = dbName, Username = username, Password = password }, connection);
@@ -103,12 +103,44 @@ namespace Repository.Admin.Postgres
             string dbName = $"db_{app.Name}";
             string username = $"user_{app.Name}";
 
-            using IDbConnection connection = await database.OpenConnectionAsync();
+            using IDbConnection connection = await repository.OpenConnectionAsync();
             await DropDatabaseAsync(dbName, connection);
             await DropDatabaseUserAsync(username, connection);
             await DeleteDbMetadata(new DbMetadata { AppId = app.Id }, connection);
 
             return true;
+        }
+
+        public async Task<DbMetadata> GetDbMetadataByAppNameAsync(string appName)
+        {
+            var app = await appRepository.GetByNameAsync(appName);
+            if (app == null)
+            {
+                throw new Exception($"App with name {appName} not found.");
+            }
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "appId", app.Id },
+                { "status", (int)Status.Active }
+            };
+            string sql = "SELECT name, username, password FROM DbMetadata WHERE appId = @appId AND status = @status";
+
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            using var reader = await repository.ExecuteReaderAsync(connection, sql, parameters);
+            DbMetadata dbMetadata = null;
+            if (reader.Read())
+            {
+                dbMetadata = new DbMetadata
+                {
+                    AppId = app.Id,
+                    DbName = reader.GetString(reader.GetOrdinal("name")),
+                    Username = reader.GetString(reader.GetOrdinal("username")),
+                    Password = reader.GetString(reader.GetOrdinal("password"))
+                };
+            }
+
+            return dbMetadata;
         }
     }
 }
