@@ -1,7 +1,8 @@
 ﻿using Engine.EntityService;
 using Engine.Models;
+using Engine.Services.AppEntityService;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using Repository.Admin;
 
 namespace Engine.Controllers.Admin
 {
@@ -10,12 +11,20 @@ namespace Engine.Controllers.Admin
     public class EntityController : Controller
     {
         private readonly IEntityService entityService;
+
         private readonly ILogger<EntityController> logger;
 
-        public EntityController(IEntityService entityService, ILogger<EntityController> logger)
+        private readonly IAppEntityService appEntityService;
+
+        public EntityController(
+            IEntityService entityService, 
+            ILogger<EntityController> logger, 
+            IAppDbRepository appDbRepository,
+            IAppEntityService appEntityService)
         {
             this.logger = logger;
             this.entityService = entityService;
+            this.appEntityService = appEntityService;
         }
 
         [HttpPost]
@@ -39,6 +48,7 @@ namespace Engine.Controllers.Admin
             else
             {
                 await entityService.SaveAsync(appName, entity);
+                await appEntityService.CreateAppEntityAsync(entity);
                 return Created(string.Empty, new SucessResponse<object>()
                 {
                     Success = true,

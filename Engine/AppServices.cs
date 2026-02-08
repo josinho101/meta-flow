@@ -1,8 +1,11 @@
 ﻿using Engine.EntityService;
+using Engine.Services.AppEntityService;
 using Engine.Services.AppsService;
 using Engine.Services.StartupService;
 using MetaParsers.EntityParser;
+using Models;
 using Repository.Admin;
+using Repository.Application;
 using Repository.Postgres.Admin;
 using Repository.Postgres.Application;
 using Validators.EntityValidator;
@@ -19,7 +22,7 @@ namespace Engine
             services.AddSingleton<IEntityService, Services.EntityService.EntityService>();
 
             services.AddSingleton<IMetaFlowRepository, MetaFlowRepository>();
-            services.AddSingleton<IAppDbRepository, AppDbRepository>();
+            services.AddScoped<IAppDbRepository, AppDbRepository>();
 
             services.AddSingleton<IStartupService, StartupService>();
             services.AddSingleton<IStartupRepository, StartupRepository>();
@@ -28,6 +31,26 @@ namespace Engine
             services.AddSingleton<IAppRepository, AppRepository>();
 
             services.AddSingleton<IDbMetadataRepository, DbMetadataRepository>();
+
+            services.AddScoped<IAppEntityService, AppEntityService>();
+            services.AddScoped<IAppEntityRepository, AppEntityRepository>();
+
+            services.AddScoped<DbMetadata>(sp =>
+            {
+                IHttpContextAccessor httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+                IDbMetadataRepository dbMetadataRepository = sp.GetRequiredService<IDbMetadataRepository>();
+
+                var routeValues = httpContextAccessor.HttpContext?.Request.RouteValues;
+                string appName = routeValues?["appName"]?.ToString() ?? string.Empty;
+
+                var dbMetadata = new DbMetadata();
+                if (!string.IsNullOrEmpty(appName))
+                {
+                    dbMetadata = dbMetadataRepository.GetDbMetadataByAppNameAsync(appName).Result;
+                }
+
+                return dbMetadata;
+            });
 
             return services;
         }
