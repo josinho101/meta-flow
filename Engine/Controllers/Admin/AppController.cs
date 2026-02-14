@@ -1,5 +1,5 @@
 ﻿using Engine.Models.ViewModels;
-using Engine.Services.AppsService;
+using Engine.Services.AppService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Engine.Controllers.Admin

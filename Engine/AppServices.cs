@@ -1,6 +1,6 @@
 ﻿using Engine.EntityService;
 using Engine.Services.AppEntityService;
-using Engine.Services.AppsService;
+using Engine.Services.AppService;
 using Engine.Services.StartupService;
 using MetaParsers.EntityParser;
 using Models;

@@ -1,6 +1,6 @@
 ﻿using Engine.Models.ViewModels;
 
-namespace Engine.Services.AppsService
+namespace Engine.Services.AppService
 {
     public interface IAppService
     {

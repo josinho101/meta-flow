@@ -5,7 +5,7 @@ using Models;
 using Repository.Postgres.Admin;
 using Repository.Admin;
 
-namespace Engine.Services.AppsService
+namespace Engine.Services.AppService
 {
     public class AppService : IAppService
     {
