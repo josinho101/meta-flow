@@ -4,8 +4,8 @@ namespace Repository.Admin
 {
     public interface IDbMetadataRepository
     {
-        Task<bool> CreateDbAsync(App app);
-        Task<bool> DeleteDbAsync(App app);
-        Task<DbMetadata> GetDbMetadataByAppNameAsync(string appName);
+        Task<bool> CreateDbAsync(int appId, DbMetadata dbMetadata);
+        Task<bool> DeleteDbAsync(int appId);
+        Task<DbMetadata> GetDbMetadataByAppNameAsync(int appId);
     }
 }

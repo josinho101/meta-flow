@@ -9,12 +9,9 @@ namespace Repository.Postgres.Admin
     {
         private readonly IMetaFlowRepository repository;
 
-        private readonly IAppRepository appRepository;
-
-        public DbMetadataRepository(IMetaFlowRepository repository, IAppRepository appRepository)
+        public DbMetadataRepository(IMetaFlowRepository repository)
         {
             this.repository = repository;
-            this.appRepository = appRepository;
         }
 
         private async Task CreateDatabaseAsync(string dbName, string username, IDbConnection connection)
@@ -74,54 +71,53 @@ namespace Repository.Postgres.Admin
             return result > 0;
         }
 
-        public async Task<bool> CreateDbAsync(App app)
+        public async Task<bool> CreateDbAsync(int appId, DbMetadata dbMetadata)
         {
-            string dbName = $"db_{app.Name}";
-            string username = $"user_{app.Name}";
-            string password = "somepassword";
+            string dbName = dbMetadata.DbName;
+            string username = dbMetadata.Username;
+            string password = dbMetadata.Password;
 
             try
             {
-                var existingApp = await appRepository.GetByNameAsync(app.Name);
-
                 using IDbConnection connection = await repository.OpenConnectionAsync();
                 await CreateDatabaseUserAsync(username, password, connection);
                 await CreateDatabaseAsync(dbName, username, connection);
-                await SaveDbMetadata(new DbMetadata { AppId = existingApp.Id, DbName = dbName, Username = username, Password = password }, connection);
+                await SaveDbMetadata(new DbMetadata { AppId = appId, DbName = dbName, Username = username, Password = password }, connection);
 
                 return true;
             }
             catch (Exception)
             {
-                await DeleteDbAsync(app);
+                await DeleteDbAsync(appId);
                 throw;
             }
         }
 
-        public async Task<bool> DeleteDbAsync(App app)
+        public async Task<bool> DeleteDbAsync(int appId)
         {
-            string dbName = $"db_{app.Name}";
-            string username = $"user_{app.Name}";
+
+            var metadata = await this.GetDbMetadataByAppNameAsync(appId);
+            if (metadata == null)
+            {
+                throw new Exception($"DbMetadata for app id {appId} not found.");
+            }
+
+            string dbName = metadata.DbName;
+            string username = metadata.Username;
 
             using IDbConnection connection = await repository.OpenConnectionAsync();
             await DropDatabaseAsync(dbName, connection);
             await DropDatabaseUserAsync(username, connection);
-            await DeleteDbMetadata(new DbMetadata { AppId = app.Id }, connection);
+            await DeleteDbMetadata(new DbMetadata { AppId = metadata.AppId }, connection);
 
             return true;
         }
 
-        public async Task<DbMetadata> GetDbMetadataByAppNameAsync(string appName)
+        public async Task<DbMetadata> GetDbMetadataByAppNameAsync(int appId)
         {
-            var app = await appRepository.GetByNameAsync(appName);
-            if (app == null)
-            {
-                throw new Exception($"App with name {appName} not found.");
-            }
-
             var parameters = new Dictionary<string, object>
             {
-                { "appId", app.Id },
+                { "appId", appId },
                 { "status", (int)Status.Active }
             };
             string sql = "SELECT name, username, password FROM DbMetadata WHERE appId = @appId AND status = @status";
@@ -133,7 +129,7 @@ namespace Repository.Postgres.Admin
             {
                 dbMetadata = new DbMetadata
                 {
-                    AppId = app.Id,
+                    AppId = appId,
                     DbName = reader.GetString(reader.GetOrdinal("name")),
                     Username = reader.GetString(reader.GetOrdinal("username")),
                     Password = reader.GetString(reader.GetOrdinal("password"))

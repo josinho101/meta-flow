@@ -1,4 +1,5 @@
 ﻿using Engine.EntityService;
+using Engine.Services.AppDb;
 using Engine.Services.AppEntityService;
 using Engine.Services.AppService;
 using Engine.Services.StartupService;
@@ -35,10 +36,13 @@ namespace Engine
             services.AddScoped<IAppEntityService, AppEntityService>();
             services.AddScoped<IAppEntityRepository, AppEntityRepository>();
 
+            services.AddSingleton<IAppDbService, AppDbService>();
+
             services.AddScoped<DbMetadata>(sp =>
             {
                 IHttpContextAccessor httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 IDbMetadataRepository dbMetadataRepository = sp.GetRequiredService<IDbMetadataRepository>();
+                IAppRepository appRepository = sp.GetRequiredService<AppRepository>();
 
                 var routeValues = httpContextAccessor.HttpContext?.Request.RouteValues;
                 string appName = routeValues?["appName"]?.ToString() ?? string.Empty;
@@ -46,7 +50,8 @@ namespace Engine
                 var dbMetadata = new DbMetadata();
                 if (!string.IsNullOrEmpty(appName))
                 {
-                    dbMetadata = dbMetadataRepository.GetDbMetadataByAppNameAsync(appName).Result;
+                    var app = appRepository.GetByNameAsync(appName).Result;
+                    dbMetadata = dbMetadataRepository.GetDbMetadataByAppNameAsync(app.Id).Result;
                 }
 
                 return dbMetadata;
