@@ -16,8 +16,8 @@ namespace Engine.Services.EntityService
         private readonly IAppRepository appRepository;
 
         public EntityService(
-            IEntityParser<string> parser, 
-            ILogger<EntityService> logger, 
+            IEntityParser<string> parser,
+            ILogger<EntityService> logger,
             IEntityValidator entityValidator,
             IEntityRepository entityRepository,
             IAppRepository appRepository)
@@ -50,24 +50,16 @@ namespace Engine.Services.EntityService
 
         public async Task<bool> SaveAsync(string appName, Entity entity)
         {
-            try
+            var app = await appRepository.GetByNameAsync(appName);
+            if (app == null)
             {
-                var app = await appRepository.GetByNameAsync(appName);
-                if (app == null)
-                {
-                    logger.LogError($"App {appName} not found while saving entity {entity.Name}");
-                    throw new EntityNotFoundException($"App {appName} not found while saving entity {entity.Name}");
-                }
-                entity.AppId = app.Id;
-                await entityRepository.SaveAsync(entity);
-                logger.LogInformation($"Entity {entity.Name} saved successfully.");
-                return true;
+                logger.LogError($"App {appName} not found while saving entity {entity.Name}");
+                throw new EntityNotFoundException($"App {appName} not found while saving entity {entity.Name}");
             }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error saving entity {entity.Name}: {ex.Message}");
-                throw;
-            }
+            entity.AppId = app.Id;
+            await entityRepository.SaveAsync(entity);
+            logger.LogInformation($"Entity {entity.Name} saved successfully.");
+            return true;
         }
     }
 }

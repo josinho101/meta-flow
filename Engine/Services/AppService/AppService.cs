@@ -24,103 +24,63 @@ namespace Engine.Services.AppService
 
         public async Task<AppViewModel> CreateAsync(AppViewModel model)
         {
-            try
+
+            App app = model.ToDao();
+            if (await appRepository.FindByNameAsync(app.Name))
             {
-                App app = model.ToDao();
-                if (await appRepository.FindByNameAsync(app.Name))
-                {
-                    throw new DuplicateEntityException("App with the same name already exists");
-                }
-
-                app.Status = (short)Status.Active;
-                var result = await appRepository.CreateAsync(app);
-                logger.LogInformation($"App {app.Name} created");
-
-                // create database and user for the app
-                await dbMetadataRepository.CreateDbAsync(app);
-                logger.LogInformation($"App database and user created");
-
-                return result.ToViewModel();
+                throw new DuplicateEntityException("App with the same name already exists");
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating app");
-                throw;
-            }
+
+            app.Status = (short)Status.Active;
+            var result = await appRepository.CreateAsync(app);
+            logger.LogInformation($"App {app.Name} created");
+
+            // create database and user for the app
+            await dbMetadataRepository.CreateDbAsync(app);
+            logger.LogInformation($"App database and user created");
+
+            return result.ToViewModel();
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            try
+            var app = await appRepository.GetByIdAsync(id);
+            if (app == null)
             {
-
-                var app = await appRepository.GetByIdAsync(id);
-                if (app == null)
-                {
-                    throw new EntityNotFoundException($"App with {id} not found");
-                }
-
-                // delete database and user for the app
-                await dbMetadataRepository.DeleteDbAsync(app);
-                logger.LogInformation($"App {app.Name} database and user deleted");
-
-                var result = await appRepository.DeleteAsync(id);
-                logger.LogInformation($"App {app.Name} deleted");
-                return result;
+                throw new EntityNotFoundException($"App with {id} not found");
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Error deleting app with id {id}");
-                throw;
-            }
+
+            // delete database and user for the app
+            await dbMetadataRepository.DeleteDbAsync(app);
+            logger.LogInformation($"App {app.Name} database and user deleted");
+
+            var result = await appRepository.DeleteAsync(id);
+            logger.LogInformation($"App {app.Name} deleted");
+            return result;
         }
 
         public async Task<AppViewModel?> GetAsync(int id)
         {
-            try
-            {
-                var app = await appRepository.GetByIdAsync(id);
-                return app?.ToViewModel();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Error getting app with id {id}");
-                throw;
-            }
+            var app = await appRepository.GetByIdAsync(id);
+            return app?.ToViewModel();
         }
 
         public async Task<List<AppViewModel>> GetAllAsync()
         {
-            try
-            {
-                var apps = await appRepository.GetAllAsync();
-                return apps?.Select(app => app.ToViewModel()).ToList();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error Getting apps");
-                throw;
-            }
+            var apps = await appRepository.GetAllAsync();
+            return apps?.Select(app => app.ToViewModel()).ToList();
         }
 
         public async Task<bool> UpdateAsync(int id, AppViewModel app)
         {
-            try
+            if (await appRepository.FindByNameAsync(app.Name))
             {
-                if (await appRepository.FindByNameAsync(app.Name))
-                {
-                    throw new DuplicateEntityException("App with the same name already exists");
-                }
+                throw new DuplicateEntityException("App with the same name already exists");
+            }
 
-                var result = await appRepository.UpdateAsync(id, app.ToDao());
-                logger.LogInformation($"App with {id} updated", app);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Error updating app with id {id}");
-                throw;
-            }
+            var result = await appRepository.UpdateAsync(id, app.ToDao());
+            logger.LogInformation($"App with {id} updated", app);
+            return result;
         }
     }
 }
