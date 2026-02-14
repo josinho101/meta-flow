@@ -8,17 +8,17 @@ namespace Engine.Controllers.Admin
 {
     [ApiController]
     [Route("admin/api/{appName}/entity")]
-    public class EntityController : Controller
+    public class AppEntityController : Controller
     {
         private readonly IEntityService entityService;
 
-        private readonly ILogger<EntityController> logger;
+        private readonly ILogger<AppEntityController> logger;
 
         private readonly IAppEntityService appEntityService;
 
-        public EntityController(
+        public AppEntityController(
             IEntityService entityService, 
-            ILogger<EntityController> logger, 
+            ILogger<AppEntityController> logger, 
             IAppDbRepository appDbRepository,
             IAppEntityService appEntityService)
         {

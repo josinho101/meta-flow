@@ -5,11 +5,11 @@ namespace Engine.Controllers.Admin
 {
     [ApiController]
     [Route("admin/api/entity-fieldtypes")]
-    public class EntityFieldTypeController : Controller
+    public class AppEntityFieldTypeController : Controller
     {
         private readonly IConfiguration config;
 
-        public EntityFieldTypeController(IConfiguration config)
+        public AppEntityFieldTypeController(IConfiguration config)
         {
             this.config = config;
         }
