@@ -4,7 +4,7 @@ namespace Repository.Application
 {
     public interface IAppEntityRepository
     {
-        Task<string> GenerateSqlScriptAsync(Entity entity);
+        string GenerateSqlScriptAsync(Entity entity);
         Task<bool> ApplySqlScriptAsync(string sql);
     }
 }

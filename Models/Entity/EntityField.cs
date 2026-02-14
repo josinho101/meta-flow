@@ -9,5 +9,6 @@
         public int Length { get; set; }
         public PrimaryKey? PrimaryKey { get; set; }
         public ForeignKey? ForeignKey { get; set; }
+        public string DefaultValue { get; set; }
     }
 }

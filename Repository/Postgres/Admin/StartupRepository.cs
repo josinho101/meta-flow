@@ -70,7 +70,7 @@ namespace Repository.Postgres.Admin
                       REFERENCES Apps(id)
                       ON DELETE CASCADE,
 
-                   CONSTRAINT uq_app_id_name UNIQUE (appId, name)
+                   CONSTRAINT uq_app_id_name_status UNIQUE (appId, name, status)
                 );";
 
             using IDbConnection connection = await repository.OpenConnectionAsync();

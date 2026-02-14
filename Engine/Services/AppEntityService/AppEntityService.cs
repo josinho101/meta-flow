@@ -17,9 +17,10 @@ namespace Engine.Services.AppEntityService
 
         public async Task<bool> CreateAppEntityAsync(Entity entity)
         {
-            string sql = await appEntityRepository.GenerateSqlScriptAsync(entity);
+            string sql = appEntityRepository.GenerateSqlScriptAsync(entity);
+            logger.LogInformation($"Entity SQL Script {sql}");
             await appEntityRepository.ApplySqlScriptAsync(sql);
-            logger.LogInformation("Ëntity SQL generated and applied to app database");
+            logger.LogInformation("Entity SQL generated and applied to app database");
             return true;
         }
     }
