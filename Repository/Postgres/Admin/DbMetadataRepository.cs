@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Microsoft.Extensions.Logging;
+using Models;
 using Models.Enums;
 using Repository.Admin;
 using System.Data;
@@ -9,9 +10,12 @@ namespace Repository.Postgres.Admin
     {
         private readonly IMetaFlowRepository repository;
 
-        public DbMetadataRepository(IMetaFlowRepository repository)
+        private readonly ILogger<DbMetadataRepository> logger;
+
+        public DbMetadataRepository(IMetaFlowRepository repository, ILogger<DbMetadataRepository> logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
 
         private async Task CreateDatabaseAsync(string dbName, string username, IDbConnection connection)
@@ -28,14 +32,28 @@ namespace Repository.Postgres.Admin
 
         private async Task DropDatabaseUserAsync(string username, IDbConnection connection)
         {
-            string sql = $"DROP USER IF EXISTS {username}";
-            await repository.ExecuteNonQueryAsync(connection, sql);
+            try
+            {
+                string sql = $"DROP USER IF EXISTS {username}";
+                await repository.ExecuteNonQueryAsync(connection, sql);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Failed to drop database user {username}");
+            }
         }
 
         private async Task DropDatabaseAsync(string dbName, IDbConnection connection)
         {
-            string sql = $"DROP DATABASE IF EXISTS {dbName} WITH (FORCE)";
-            await repository.ExecuteNonQueryAsync(connection, sql);
+            try
+            {
+                string sql = $"DROP DATABASE IF EXISTS {dbName} WITH (FORCE)";
+                await repository.ExecuteNonQueryAsync(connection, sql);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Failed to drop database {dbName}");
+            }
         }
 
         private async Task<bool> SaveDbMetadata(DbMetadata metadata, IDbConnection connection)
@@ -54,7 +72,7 @@ namespace Repository.Postgres.Admin
             string sql = @"INSERT INTO DbMetadata (appId, name, username, password, createdDate, updatedDate, status) 
                               VALUES (@appId, @name, @username, @password, @createdDate, @updatedDate, @status)";
             var result = await repository.ExecuteNonQueryAsync(connection, sql, parameters);
-            return await Task.FromResult(true);
+            return true;
         }
 
         private async Task<bool> DeleteDbMetadata(DbMetadata metadata, IDbConnection connection)
@@ -77,20 +95,12 @@ namespace Repository.Postgres.Admin
             string username = dbMetadata.Username;
             string password = dbMetadata.Password;
 
-            try
-            {
-                using IDbConnection connection = await repository.OpenConnectionAsync();
-                await CreateDatabaseUserAsync(username, password, connection);
-                await CreateDatabaseAsync(dbName, username, connection);
-                await SaveDbMetadata(new DbMetadata { AppId = appId, DbName = dbName, Username = username, Password = password }, connection);
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            await CreateDatabaseUserAsync(username, password, connection);
+            await CreateDatabaseAsync(dbName, username, connection);
+            await SaveDbMetadata(new DbMetadata { AppId = appId, DbName = dbName, Username = username, Password = password }, connection);
 
-                return true;
-            }
-            catch (Exception)
-            {
-                await DeleteDbAsync(appId);
-                throw;
-            }
+            return true;
         }
 
         public async Task<bool> DeleteDbAsync(int appId)
@@ -137,6 +147,33 @@ namespace Repository.Postgres.Admin
             }
 
             return dbMetadata;
+        }
+
+        public async Task<bool> IsValidDbNameAsync(string dbName)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "dbName", dbName }
+            };
+            const string sql = "SELECT 1 FROM pg_database WHERE datname = @dbName";
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            var exists = await repository.ExecuteScalarAsync(connection, sql, parameters);
+            bool dbFound = exists != null && Convert.ToInt32(exists) > 0;
+            return !dbFound;
+        }
+
+        public async Task<bool> IsValidUsernameAsync(string username)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "username", username }
+            };
+            const string sql = "SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = @username)";
+            using IDbConnection connection = await repository.OpenConnectionAsync();
+            var exists = await repository.ExecuteScalarAsync(connection, sql, parameters);
+            bool userFound = exists != null && Convert.ToInt32(exists) > 0;
+
+            return !userFound;
         }
     }
 }

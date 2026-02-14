@@ -1,4 +1,5 @@
-﻿using Repository.Admin;
+﻿using Models.Enums;
+using Repository.Admin;
 using System.Data;
 
 namespace Repository.Postgres.Admin
@@ -31,11 +32,11 @@ namespace Repository.Postgres.Admin
 
         public async Task<bool> GenarateDbMetadataTableAsync()
         {
-            const string sql = @"
+            string sql = $@"
                 CREATE TABLE IF NOT EXISTS DbMetadata (
                     id SMALLSERIAL PRIMARY KEY,
                     appId INTEGER NOT NULL,
-                    name VARCHAR(100) NOT NULL UNIQUE,
+                    name VARCHAR(50) NOT NULL,
                     username VARCHAR(50) NOT NULL,
                     password VARCHAR(100) NOT NULL,
                     createdDate TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -46,7 +47,10 @@ namespace Repository.Postgres.Admin
                       FOREIGN KEY(appId) 
                       REFERENCES Apps(id)
                       ON DELETE CASCADE
-                );";
+                );
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_dbmetadata_name_active 
+                ON DbMetadata (name) 
+                WHERE status != {(int)Status.Deleted};";
 
             using IDbConnection connection = await repository.OpenConnectionAsync();
             await repository.ExecuteNonQueryAsync(connection, sql);

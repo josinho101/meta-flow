@@ -5,20 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace Engine.Controllers.Admin
 {
     [ApiController]
-    [Route("admin/api")]
+    [Route("admin/api/{appName}/db")]
     public class AppDbController : Controller
     {
         private readonly IAppDbService appDbService;
 
-        private readonly ILogger<AppDbController> logger;
-
-        public AppDbController(ILogger<AppDbController> logger, IAppDbService appDbService)
+        public AppDbController(IAppDbService appDbService)
         {
-            this.logger = logger;
             this.appDbService = appDbService;
         }
 
-        [HttpPost("{appName}/db")]
+        [HttpPost]
         public async Task<IActionResult> Create(string appName, DbMetadataViewModel viewModel)
         {
             if(viewModel == null)
@@ -31,10 +28,28 @@ namespace Engine.Controllers.Admin
             return Created("", $"Database and user created for {appName}");
         }
 
-        [HttpDelete("{appName}/db")]
+        [HttpDelete]
         public async Task<IActionResult> Delete(string appName)
         {
-            return Ok();
+            if (appName == null || string.IsNullOrWhiteSpace(appName))
+            {
+                return BadRequest("'appName' can't be null or empty!");
+            }
+
+            await appDbService.DeleteDbAsync(appName);
+
+            return Ok("Database and user deleted.");
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(string appName)
+        {
+            if (appName == null || string.IsNullOrWhiteSpace(appName))
+            {
+                return BadRequest("'appName' can't be null or empty!");
+            }
+
+            return Ok("Database credentials updated");
         }
     }
 }

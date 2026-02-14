@@ -24,6 +24,7 @@ namespace Engine.Handlers
                 DuplicateEntityException => (StatusCodes.Status409Conflict, exception.Message),
                 EntityNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
                 ValidationException => (StatusCodes.Status400BadRequest, exception.Message),
+                ArgumentException => (StatusCodes.Status400BadRequest, exception.Message),
                 _ => (StatusCodes.Status500InternalServerError, "Server Error")
             };
 

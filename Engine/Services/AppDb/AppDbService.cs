@@ -28,6 +28,18 @@ namespace Engine.Services.AppDb
                 throw new EntityNotFoundException($"App with name {appName} not found.");
             }
 
+            bool isValidDbName = await dbMetadataRepository.IsValidDbNameAsync(viewModel.DbName);
+            if (!isValidDbName)
+            {
+                throw new ArgumentException($"Database name {viewModel.DbName} is not valid or already taken.");
+            }
+
+            bool isValidUsername = await dbMetadataRepository.IsValidUsernameAsync(viewModel.Username);
+            if (!isValidUsername)
+            {
+                throw new ArgumentException($"Username {viewModel.Username} is not valid or already taken.");
+            }
+
             await dbMetadataRepository.CreateDbAsync(app.Id, viewModel.ToDao());
             logger.LogInformation($"App database {viewModel.DbName} and user created");
             return true;

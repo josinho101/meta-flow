@@ -42,7 +42,7 @@ namespace Engine
             {
                 IHttpContextAccessor httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 IDbMetadataRepository dbMetadataRepository = sp.GetRequiredService<IDbMetadataRepository>();
-                IAppRepository appRepository = sp.GetRequiredService<AppRepository>();
+                IAppRepository appRepository = sp.GetRequiredService<IAppRepository>();
 
                 var routeValues = httpContextAccessor.HttpContext?.Request.RouteValues;
                 string appName = routeValues?["appName"]?.ToString() ?? string.Empty;
