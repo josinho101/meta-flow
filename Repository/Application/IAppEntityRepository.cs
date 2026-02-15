@@ -6,5 +6,6 @@ namespace Repository.Application
     {
         string GenerateSqlScriptAsync(Entity entity);
         Task<bool> ApplySqlScriptAsync(string sql);
+        Task<bool> ApplyDefaultValuesAsync(Entity entity);
     }
 }

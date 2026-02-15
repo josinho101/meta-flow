@@ -19,8 +19,13 @@ namespace Engine.Services.AppEntityService
         {
             string sql = appEntityRepository.GenerateSqlScriptAsync(entity);
             logger.LogInformation($"Entity SQL Script {sql}");
+
             await appEntityRepository.ApplySqlScriptAsync(sql);
-            logger.LogInformation("Entity SQL generated and applied to app database");
+            logger.LogInformation("Entity SQL applied to app database");
+
+            await appEntityRepository.ApplyDefaultValuesAsync(entity);
+            logger.LogInformation("Default values for entity applied");
+
             return true;
         }
     }

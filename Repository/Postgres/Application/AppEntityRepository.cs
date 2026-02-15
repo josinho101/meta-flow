@@ -1,6 +1,7 @@
 ﻿using Models.Entity;
 using Repository.Admin;
 using Repository.Application;
+using System.Data;
 using System.Text;
 
 namespace Repository.Postgres.Application
@@ -14,9 +15,11 @@ namespace Repository.Postgres.Application
             this.appDbRepository = appDbRepository;
         }
 
-        public Task<bool> ApplySqlScriptAsync(string sql)
+        public async Task<bool> ApplySqlScriptAsync(string sql)
         {
-            return Task.FromResult(true);
+            using IDbConnection connection = await appDbRepository.OpenConnectionAsync();
+            var result = await appDbRepository.ExecuteNonQueryAsync(connection, sql);
+            return true;
         }
 
         public string GenerateSqlScriptAsync(Entity entity)
@@ -127,6 +130,11 @@ namespace Repository.Postgres.Application
                 // Fallback for types not explicitly listed or already in SQL format
                 _ => type.ToUpper()
             };
+        }
+
+        public async Task<bool> ApplyDefaultValuesAsync(Entity entity)
+        {
+            return await Task.FromResult(true);
         }
     }
 }

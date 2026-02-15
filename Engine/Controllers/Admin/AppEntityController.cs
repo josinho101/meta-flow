@@ -49,6 +49,7 @@ namespace Engine.Controllers.Admin
             {
                 await entityService.SaveAsync(appName, entity);
                 await appEntityService.CreateAppEntityAsync(entity);
+
                 return Created(string.Empty, new SucessResponse<object>()
                 {
                     Success = true,
